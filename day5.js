@@ -11,12 +11,12 @@ for (item in input) {
 let explodedInput = [];
 
 for (line in input) {
-  let [firstXcoord, firstYcoord] = input[line][0].split(",");
-  let [secondXcoord, secondYcoord] = input[line][1].split(",");
-  firstXcoord = parseInt(firstXcoord);
-  secondXcoord = parseInt(secondXcoord);
-  firstYcoord = parseInt(firstYcoord);
-  secondYcoord = parseInt(secondYcoord);
+  let [firstXcoord, firstYcoord] = input[line][0]
+    .split(",")
+    .map((x) => parseInt(x));
+  let [secondXcoord, secondYcoord] = input[line][1]
+    .split(",")
+    .map((y) => parseInt(y));
 
   const xMultiplier =
     firstXcoord - secondXcoord < 0
