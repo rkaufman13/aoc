@@ -18,32 +18,41 @@ for (let i = 2; i < bingoCards.length; i += 6) {
   for (let j = 0; j < 6; j++) {
     if (bingoCards[i + j] != "" && bingoCards[i + j]) {
       subArray.push(
-        bingoCards[i + j].split(" ").filter((number) => number != "")
+        bingoCards[i + j]
+          .split(" ")
+          .filter((number) => number != "")
+          .map((i) => parseInt(i))
       );
     }
   }
   cardsArray.push(subArray);
 }
 
-let win = false;
-
 const playBingo = (cards, numbers) => {
   let playedNumbers = [];
   let winningCards = [];
+  let lastNumber;
   let finalResult;
   let loopLength = numbers.length;
+  let initialCardLength = cards.length;
   for (let i = 0; i < loopLength; i++) {
-    if (!winningCards.length) {
-      playedNumbers.push(numbers.shift());
-      if (playedNumbers.length >= 5) {
-        [winningCards, lastNumber] = checkWin(playedNumbers, cards);
-      }
+    playedNumbers.push(numbers.shift());
+
+    if (playedNumbers.length >= 5 && winningCards.length < initialCardLength) {
+      [winningCards, cards] = checkWin(playedNumbers, cards);
+      console.log("winning cards: ", winningCards.length);
+    } else if (cards.length <= 2 || winningCards.length == initialCardLength) {
+      lastNumber = playedNumbers[playedNumbers.length - 2];
+      console.log("the winning card is", winningCards[winningCards.length - 1]);
+      console.log("the last number was " + lastNumber);
+      finalResult = calculateOffs(
+        winningCards[winningCards.length - 1],
+        playedNumbers
+      );
+      break;
     }
   }
-  if (winningCards.length) {
-    finalResult = calculateOffs(winningCards[0], playedNumbers);
-  }
-  console.log(finalResult * lastNumber);
+  console.log(finalResult * lastNumber, finalResult, lastNumber);
 };
 
 function transpose(array, arrayLength) {
@@ -66,15 +75,10 @@ function isTrue(arr, arr2) {
 }
 
 const checkWin = (numbers, cards) => {
-  let winningCards = [];
   let lastnumber = 0;
 
   for (let i = 0; i < cards.length; i++) {
-    //get one card at a time, convert values to numbers, and generate its transposed version
     card = cards[i];
-    for (let row = 0; row < card.length; row++) {
-      card[row] = card[row].map((v) => parseInt(v));
-    }
     translatedCard = transpose(card, card.length);
 
     //now go through rows of each to check against called numbers
@@ -82,21 +86,28 @@ const checkWin = (numbers, cards) => {
     for (let row = 0; row < card.length; row++) {
       if (isTrue(card[row], numbers) || isTrue(translatedCard[row], numbers)) {
         winningCards.push(card);
-
+        console.log(
+          "pushing 1 card to winningcards, now has length " +
+            winningCards.length
+        );
         lastnumber = numbers[numbers.length - 1];
+        console.log(lastnumber);
+        cards.splice(i, 1);
+        console.log("removed card from cards, now has length " + cards.length);
       }
     }
   }
-  return [winningCards, lastnumber];
+  console.log(winningCards[winningCards.length - 2]);
+  return [winningCards, cards];
 };
 
 const calculateOffs = (inputArray, numbers) => {
+  //this function is perfect stop touching it
   inputArray = inputArray.flat(2);
-
+  numbers.pop(); ///DO NOT REMOVE THIS
   const off = inputArray.filter((item) => {
     return !numbers.includes(item);
   });
-  console.log(off);
   const sum = off.reduce((a, b) => {
     return a + b;
   });
@@ -105,10 +116,3 @@ const calculateOffs = (inputArray, numbers) => {
 };
 
 playBingo(cardsArray, bingoNumbers);
-// determineWin(sampleBingoCard);
-//console.log(winningCards[0].card);
-// const sum = calculateOffs(winningCards[0].card);
-// console.log(sum * winningCards[0].winningNumber);
-//console.log(winningCards.map((card) => card.card));
-// const sum = calculateOffs(off);
-// console.log(sum * winningNumber);
